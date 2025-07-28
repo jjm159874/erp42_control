@@ -14,7 +14,7 @@ def Packet2ErpMsg(_byte: bytes) -> ErpStatusMsg:
     msg.speed = formated_packet[6]
     msg.steer = -formated_packet[7]
     msg.brake = formated_packet[8]
-    msg.encoder = np.int32(formated_packet[9])
+    msg.encoder = int(formated_packet[9])
     msg.alive = formated_packet[10]
     return msg
 

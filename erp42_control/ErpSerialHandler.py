@@ -7,10 +7,8 @@ from struct import pack
 import serial
 import numpy as np
 
-from interfaces_pkg.msg import ErpCmdMsg, ErpStatusMsg  # 수정: 실제 패키지 이름 확인
-
-# from ByteHandler import Packet2ErpMsg, ErpMsg2Packet
-from erp42_ws.ByteHandler import ErpMsg2Packet, Packet2ErpMsg
+from interfaces_pkg.msg import ErpCmdMsg, ErpStatusMsg  # 메시지 타입 확인
+from erp42_control.ByteHandler import ErpMsg2Packet, Packet2ErpMsg
 
 START_BITS = "535458"
 
@@ -42,16 +40,25 @@ class ERPHandler(Node):
         self.create_subscription(ErpCmdMsg, "/erp42_ctrl_cmd", self.sendPacket, 10)
 
         # Timer (40Hz)
-        self.create_timer(1.0 / 40.0, self.timer_callback)
+        self.create_timer(1.0 / 40.0, self.timer_callback) 
 
     def recvPacket(self):
         try:
             packet = self.serial.read(18)
-            if not packet.hex().find(START_BITS) == 0:
-                end, data = packet.hex().split(START_BITS)
-                packet = bytes.fromhex(START_BITS + data + end)
-            msg = Packet2ErpMsg(packet)
-            self.erpMotionMsg_pub.publish(msg)
+            hex_data = packet.hex()
+
+            # START_BITS 검사
+            if not hex_data.startswith(START_BITS):
+                self.get_logger().warn(f"Invalid START_BITS: {hex_data}")
+                return
+
+            # 파싱 시도
+            try:
+                msg = Packet2ErpMsg(packet)
+                self.erpMotionMsg_pub.publish(msg)
+            except Exception as inner_e:
+                self.get_logger().warn(f"Packet2ErpMsg Error: {inner_e} | raw: {hex_data}")
+
         except Exception as e:
             self.get_logger().warn(f"recvPacket Error: {e}")
 
@@ -84,6 +91,3 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
-
-
-

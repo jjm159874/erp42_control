@@ -25,6 +25,7 @@ setup(
             'ByteHandler_node = erp42_control.ByteHandler:main',
             'ErpSerialHandler_node = erp42_control.ErpSerialHandler:main',
             'parking = erp42_control.parking:main',
+            'publish_parking_signal = erp42_control.publish_parking_signal:main',
         ],
     },
 )

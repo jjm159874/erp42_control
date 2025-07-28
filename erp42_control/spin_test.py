@@ -53,14 +53,14 @@ class ERP42Teleop(Node):
         super().__init__('erp42_teleop')
 
         self.cmd_publisher = self.create_publisher(ErpCmdMsg, 'erp42_ctrl_cmd', 10)
-
+        '''
         self.status_subscriber = self.create_subscription(
             ErpStatusMsg,
             'erp42_status',
             self.status_callback,
             10
         )
-
+        '''
         self.get_logger().info("ERP42 Teleop Node Started (Spin Mode)")
 
         # 입력 쓰레드 시작
@@ -70,8 +70,8 @@ class ERP42Teleop(Node):
     def send_steer_cmd(self, steer_angle: int):
         msg = ErpCmdMsg()
         msg.e_stop = False
-        msg.gear = 1
-        msg.speed = 0     # 회전 가능하도록 속도 부여
+        msg.gear = 2
+        msg.speed = 50     # 회전 가능하도록 속도 부여
         msg.steer = steer_angle
         msg.brake = 0
         self.cmd_publisher.publish(msg)

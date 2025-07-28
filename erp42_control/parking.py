@@ -2,10 +2,10 @@
 
 import rclpy
 from rclpy.node import Node
+from rclpy.duration import Duration
 
 from std_msgs.msg import Bool
 from interfaces_pkg.msg import ErpCmdMsg, ErpStatusMsg
-
 
 class ParkingNode(Node):
     def __init__(self):
@@ -13,7 +13,7 @@ class ParkingNode(Node):
 
         # 퍼블리셔: ERP42 제어 명령
         self.cmd_publisher = self.create_publisher(
-            ErpCmdMsg,  
+            ErpCmdMsg,
             '/erp42_ctrl_cmd',
             10
         )
@@ -26,23 +26,27 @@ class ParkingNode(Node):
             10
         )
 
+        self.parking_done = False  # ✅ 주차 수행 여부 플래그
+
         self.get_logger().info("🚗 Parking Node Started")
 
     def parking_ok_callback(self, msg: Bool):
-        if msg.data:
+        if msg.data and not self.parking_done:
             self.get_logger().info("🟢 Parking signal received. Executing parking maneuver...")
             self.execute_parking()
+            self.parking_done = True  # ✅ 한 번만 실행되도록 설정
+        elif msg.data and self.parking_done:
+            self.get_logger().info("⚠️ Parking already completed. Ignoring signal.")
         else:
             self.get_logger().info("🔴 Parking signal is False. Waiting...")
 
     def execute_parking(self):
-        # 단순한 후진 주차 예시
         for i in range(20):  # 20번 반복 (주차 거리 제어)
             cmd = ErpCmdMsg()
             cmd.e_stop = False
-            cmd.gear = 2           # 후진
-            cmd.speed = 10         # 느린 속도
-            cmd.steer = 0          # 직진
+            cmd.gear = 2       # 후진
+            cmd.speed = 10     # 느린 속도
+            cmd.steer = 0      # 직진
             cmd.brake = 0
 
             self.cmd_publisher.publish(cmd)
@@ -62,8 +66,7 @@ class ParkingNode(Node):
 
     def sleep_ms(self, ms: int):
         """ROS-safe sleep in milliseconds."""
-        self.get_clock().sleep_for(rclpy.duration.Duration(milliseconds=ms))
-
+        self.get_clock().sleep_for(Duration(nanoseconds=ms * 1_000_000))
 
 def main(args=None):
     rclpy.init(args=args)
@@ -75,7 +78,6 @@ def main(args=None):
     finally:
         node.destroy_node()
         rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()

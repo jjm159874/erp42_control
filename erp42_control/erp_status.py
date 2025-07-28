@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from interfaces_pkg.msg import ErpStatusMsg
-from erp42_ws.ErpSerialHandler import ERPHandler  # 시리얼 핸들러 모듈
+from erp42_control.ErpSerialHandler import ERPHandler  # 시리얼 핸들러 모듈
 
 class ERP42StatusNode(Node):
     def __init__(self):
