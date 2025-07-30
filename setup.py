@@ -24,8 +24,9 @@ setup(
             'spin_test_node = erp42_control.spin_test:main',
             'ByteHandler_node = erp42_control.ByteHandler:main',
             'ErpSerialHandler_node = erp42_control.ErpSerialHandler:main',
-            'parking = erp42_control.parking:main',
+            'parking_node = erp42_control.parking:main',
             'publish_parking_signal = erp42_control.publish_parking_signal:main',
+            'parking_detecter_node = erp42_control.parking_detecter:main',
         ],
     },
 )
